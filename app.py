@@ -1,15 +1,18 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 import google.generativeai as genai
 import os
 
-app = Flask(__name__, static_folder='.')
-CORS(app)  # Enable CORS for all routes
+from dotenv import load_dotenv, dotenv_values 
+# loading variables from .env file
+load_dotenv() 
 
-# Configure the API key securely
-API_KEY = os.getenv("GENAI_API_KEY")
-if not API_KEY:
-    raise ValueError("API key not found. Set the 'GENAI_API_KEY' environment variable.")
+# accessing and printing value
+API_KEY = os.getenv('GENAI_API_KEY')
+
+app = Flask(__name__, static_folder='.')
+app.secret_key = os.urandom(24)  # Required for session management
+CORS(app)  # Enable CORS for all routes
 
 genai.configure(api_key=API_KEY)
 
@@ -32,10 +35,26 @@ def chat():
         
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
-        
-        # Generate response using Gemini
-        response = model.generate_content(user_message)
-        
+
+        # Check if there is previous context in the session
+        if 'chat_history' not in session:
+            session['chat_history'] = []
+
+        # Add user message to chat history
+        session['chat_history'].append(f"User: {user_message}")
+
+        # Combine all prior messages for context
+        context = "\n".join(session.get('chat_history'))
+
+        print(context)
+
+        # Generate response using Gemini with context
+        response = model.generate_content(context)
+
+        # Add AI's response to the chat history
+        session['chat_history'].append(f"{response.text}")
+
+
         return jsonify({
             'response': response.text
         })
