@@ -40,20 +40,15 @@ def chat():
         if 'chat_history' not in session:
             session['chat_history'] = []
 
-        # Add user message to chat history
-        session['chat_history'].append(f"User: {user_message}")
+        session['chat_history'].append(f"User: {user_message}") # Add user message to chat history
 
-        # Combine all prior messages for context
-        context = "\n".join(session.get('chat_history'))
+        context = "\n".join(session.get('chat_history')) # Combine all prior messages for context
 
         print(context)
 
-        # Generate response using Gemini with context
-        response = model.generate_content(context)
+        response = model.generate_content(context) # Generate response using Gemini with context
 
-        # Add AI's response to the chat history
-        session['chat_history'].append(f"{response.text}")
-
+        session['chat_history'].append(f"{response.text}") # Add AI's response to the chat history
 
         return jsonify({
             'response': response.text
