@@ -27,7 +27,7 @@ def index():
 def styles():
     return send_from_directory('.', 'style.css')
 
-@app.route('/chat', methods=['POST'])
+@app.route('/', methods=['POST'])
 def chat():
     try:
         data = request.json
