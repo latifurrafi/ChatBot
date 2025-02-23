@@ -27,6 +27,10 @@ def index():
 def styles():
     return send_from_directory('.', 'style.css')
 
+@app.route('/script.js')
+def script():
+    return send_from_directory('.', 'script.js')
+
 @app.route('/', methods=['POST'])
 def chat():
     try:
